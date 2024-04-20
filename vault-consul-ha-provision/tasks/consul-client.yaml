@@ -1,0 +1,53 @@
+- name: "[Vault] Check dependency packages"
+  package:
+    name: ["gpg","vault","consul"]
+    state: present
+
+- name: "[Consul Client] Check consul user"
+  user: 
+    name: consul
+    group: consul
+    home: /home/consul
+    system: true
+    state: present
+  register: consul_user
+
+- name: "[Consul Client] Ensure consul folders"
+  file: 
+    path: "{{ item }}"
+    owner: "{{ consul_user.name }}"
+    group: "{{ consul_user.group }}"
+    mode: 0744
+    recurse: true
+    state: directory 
+  loop:
+  - "{{ consul_config_dir }}"
+  - "{{ consul_data_dir}}"
+
+- name: "[Consul Client] Creating the Unit Service"
+  template:
+    src: consul.service.j2
+    dest: /lib/systemd/system/consul.service
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes 
+
+- name: "[Consul Client] Change config file"
+  template:
+    src: consul-client.json.j2
+    dest: "{{ consul_config_dir }}/consul.json"
+    owner: "{{ consul_user.name }}"
+    group: "{{ consul_user.group }}"
+    mode: 0744
+    backup: yes 
+    validate: consul validate -config-format=json %s
+  notify: consul-restart
+
+- name: "[Consul Client] Ensure service is started and enabled"
+  systemd:
+    name: consul
+    daemon_reload: true
+    enabled: true
+    state: started
+    

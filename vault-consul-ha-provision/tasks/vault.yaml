@@ -1,0 +1,49 @@
+- name: "[Vault] Check vault user"
+  user: 
+    name: vault
+    group: vault
+    home: /home/vault
+    system: true
+    state: present
+  register: vault_user
+
+- name: "[Vault] Ensure consul folders"
+  file: 
+    path: "{{ vault_config_dir }}"
+    owner: "{{ vault_user.name }}"
+    group: "{{ vault_user.group }}"
+    mode: 0744
+    recurse: true
+    state: directory 
+
+- name: "[Vault] Creating the Unit Service"
+  template:
+    src: vault.service.j2
+    dest: /lib/systemd/system/vault.service
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes 
+
+- name: "[Vault] Change config file"
+  template:
+    src: vault.hcl.j2
+    dest: "{{ vault_config_dir }}/vault.hcl"
+    owner: "{{ vault_user.name }}"
+    group: "{{ vault_user.group }}"
+    mode: 0744
+    backup: yes 
+  notify: vault-restart
+
+- name: "[Vault] exporting variable VAULT_ADDR"
+  lineinfile:
+    path: /etc/environment
+    line: "VAULT_ADDR=http://{{ ansible_ipaddress }}:8200"
+
+- name: "[Vault] Ensure service is started and enabled"
+  systemd:
+    name: vault
+    daemon_reload: true
+    enabled: true
+    state: started
+

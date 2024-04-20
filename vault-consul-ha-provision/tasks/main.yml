@@ -1,0 +1,16 @@
+---
+# tasks file for vault-consul-ha-provision
+- include: consul-server.yaml
+  when: 
+  - "'consul_machines' in groups" 
+  - "'consul_machines' in group_names"
+
+- include: consul-client.yaml
+  when: 
+  - "'vault_machines' in groups"
+  - "'vault_machines' in group_names"
+
+- include: vault.yaml
+  when: 
+  - "'vault_machines' in groups"
+  - "'vault_machines' in group_names"

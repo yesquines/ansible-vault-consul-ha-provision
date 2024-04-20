@@ -1,0 +1,11 @@
+---
+# handlers file for vault-consul-ha-provision
+- name: consul-restart
+  systemd:
+    name: consul
+    state: restarted
+
+- name: vault-restart
+  systemd:
+    name: vault
+    state: restarted

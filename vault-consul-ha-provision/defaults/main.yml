@@ -1,0 +1,14 @@
+---
+# defaults file for vault-consul-ha-provision
+
+## Consul Vars
+consul_binary_dir: /usr/bin
+consul_config_dir: /etc/consul.d
+consul_data_dir: /var/consul/data
+consul_datacenter: dc1
+
+## Vault Vars
+vault_binary_dir: /usr/bin
+vault_config_dir: /etc/vault.d
+
+

@@ -1,0 +1,15 @@
+  {% set hosts_ip = [] %}
+  {% for host in groups['consul_machines'] %}
+  {{ hosts_ip.append( "\""+hostvars[host]['ansible_ipaddress']+"\"" ) }}
+  {% endfor %}
+{
+  "server": false,
+  "node_name": "{{ ansible_node_name }}",
+  "datacenter": "{{ consul_datacenter }}",
+  "data_dir": "{{ consul_data_dir }}",
+  "bind_addr": "{{ ansible_ipaddress }}",
+  "client_addr": "127.0.0.1",
+  "retry_join": [{{ hosts_ip|join(',') }}],
+  "log_level": "INFO",
+  "enable_syslog": true
+}

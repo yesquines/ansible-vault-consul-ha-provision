@@ -1,0 +1,5 @@
+---
+- hosts: consul_machines vault_machines
+  become: yes
+  roles:
+  - vault-consul-ha-provision
